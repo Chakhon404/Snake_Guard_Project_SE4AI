@@ -1,1 +1,3 @@
-# Snake_Guard_Project_SE4AI
+# Snake Guard Project (Microservices)
+
+Run with `docker-compose up --build`

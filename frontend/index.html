@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Guard AI</title>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; text-align: center; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; }
+        input[type="file"] { margin: 20px 0; }
+        button { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #219150; }
+        #preview { max-width: 100%; border-radius: 8px; margin-top: 20px; display: none; }
+        .result-box { margin-top: 20px; padding: 15px; border-radius: 8px; background: #e8f6f3; display: none; text-align: left; }
+        .loader { display: none; color: #7f8c8d; margin-top: 10px; font-weight: bold; }
+        .danger-high { color: red; font-weight: bold; }
+        .label { font-weight: bold; color: #333; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Snake Guard AI</h1>
+        <p>Upload a snake image to identify species</p>
+        
+        <input type="file" id="fileInput" accept="image/*">
+        <br>
+        <button onclick="scanSnake()">Scan Now</button>
+        
+        <div class="loader" id="loader">Processing...</div>
+        <img id="preview" src="">
+        
+        <div class="result-box" id="result">
+            <h2 id="snakeName" style="color: #2c3e50;"></h2>
+            
+            <p><span class="label">Thai Name:</span> <span id="thaiName"></span></p>
+            <p><span class="label">Confidence:</span> <span id="confidence"></span></p>
+            <p><span class="label">Danger Level:</span> <span id="danger" class="danger-high"></span></p>
+            <p><span class="label">First Aid:</span> <span id="aid"></span></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

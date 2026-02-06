@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  gateway:
+    build: ./api-gateway
+    container_name: snake_gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - STORAGE_URL=http://storage:5002/upload
+      - AI_URL=http://ai:5001/predict
+      - WIKI_URL=http://wiki:5003/info
+      - LOGS_URL=http://logs:5004/log
+    depends_on:
+      - storage
+      - ai
+      - wiki
+      - logs
+    networks:
+      - snake_net
+
+  storage:
+    build: ./image-storage
+    container_name: snake_storage
+    ports:
+      - "5002:5002"
+    volumes:
+      - snake_uploads:/app/uploads
+    networks:
+      - snake_net
+
+  ai:
+    build: ./ai-inference
+    container_name: snake_ai
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./ai-inference/models:/app/models
+    networks:
+      - snake_net
+
+  wiki:
+    build: ./snake-wiki
+    container_name: snake_wiki
+    ports:
+      - "5003:5003"
+    networks:
+      - snake_net
+
+  logs:
+    build: ./logs-service
+    container_name: snake_logs
+    ports:
+      - "5004:5004"
+    networks:
+      - snake_net
+
+  frontend:
+    build: ./frontend
+    container_name: snake_frontend
+    ports:
+      - "80:80"
+    networks:
+      - snake_net
+
+networks:
+  snake_net:
+    driver: bridge
+
+volumes:
+  snake_uploads:

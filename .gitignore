@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+venv/
+.env
+*.pth
+*.pt
+*.onnx
+ai-inference/models/*
+!ai-inference/models/.gitkeep
+image-storage/uploads/*
+!image-storage/uploads/.gitkeep
+.venv/
+*.bat
+test.py
