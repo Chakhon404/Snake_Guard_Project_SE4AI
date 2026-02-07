@@ -8,24 +8,24 @@ from concurrent.futures import ThreadPoolExecutor
 app = Flask(__name__)
 CORS(app)
 
-# URLs ของแต่ละ Service
+# URLs ของแต่ละ Service ตามโครงสร้างโปรเจกต์
 S2_URL = "http://localhost:5002/upload"
 S3_URL = "http://localhost:5001/predict"
 S4_URL = "http://localhost:5003/info"
 S5_URL = "http://localhost:5004/log"
 
 def send_log_background(data):
-    """ส่ง Log ไปที่ S5 แบบเบื้องหลัง (Background Task) เพื่อไม่ให้หน้าเว็บค้าง"""
+    """ส่ง Log ไปที่ S5 แบบเบื้องหลัง เพื่อเพิ่มความเร็วในการตอบสนอง"""
     try:
         requests.post(S5_URL, json=data, timeout=2)
     except:
         pass
 
-def call_service(url, files=None, method='POST', params=None):
-    """ฟังก์ชันกลางสำหรับส่ง Request ไปยัง Service ต่างๆ"""
+def call_service(url, files=None, method='POST'):
+    """ฟังก์ชันกลางสำหรับติดต่อ Microservices อื่นๆ"""
     try:
         if method == 'POST':
-            resp = requests.post(url, files=files, timeout=10)
+            resp = requests.post(url, files=files, timeout=15)
         else:
             resp = requests.get(url, timeout=5)
         return resp.json()
@@ -35,20 +35,19 @@ def call_service(url, files=None, method='POST', params=None):
 
 @app.route('/scan', methods=['POST'])
 def scan():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
+    img_bytes = request.data 
     
-    file = request.files['file']
-    img_bytes = file.read()
-    filename = file.filename
-    content_type = file.content_type
+    if not img_bytes:
+        return jsonify({"error": "No data received"}), 400
 
-    payload_s2 = {'file': (filename, img_bytes, content_type)}
-    payload_s3 = {'file': (filename, img_bytes, content_type)}
+    filename = request.headers.get('X-File-Name', 'uploaded_snake.jpg')
+    content_type = 'image/jpeg'
+
+    payload = {'file': (filename, img_bytes, content_type)}
 
     with ThreadPoolExecutor(max_workers=2) as executor:
-        future_s2 = executor.submit(call_service, S2_URL, files=payload_s2)
-        future_s3 = executor.submit(call_service, S3_URL, files=payload_s3)
+        future_s2 = executor.submit(call_service, S2_URL, files=payload)
+        future_s3 = executor.submit(call_service, S3_URL, files=payload)
 
         storage_res = future_s2.result() or {"url": ""}
         ai_res = future_s3.result() or {"class_name": "Unknown", "confidence": 0.0}
